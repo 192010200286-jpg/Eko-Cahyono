@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User profile validation
+    function isValidUserProfile(data) {
+      return data.id is string && data.id == request.auth.uid &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 256 &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 150)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 1000)) &&
+             (!('namaGuru' in data) || (data.namaGuru is string && data.namaGuru.size() <= 150)) &&
+             (!('namaSekolah' in data) || (data.namaSekolah is string && data.namaSekolah.size() <= 200)) &&
+             (!('instansi' in data) || (data.instansi is string && data.instansi.size() <= 200)) &&
+             (!('alamat' in data) || (data.alamat is string && data.alamat.size() <= 300)) &&
+             (!('telp' in data) || (data.telp is string && data.telp.size() <= 50)) &&
+             (!('tahun' in data) || (data.tahun is string && data.tahun.size() <= 50)) &&
+             (!('semester' in data) || (data.semester is string && data.semester.size() <= 50)) &&
+             (!('watermarkText' in data) || (data.watermarkText is string && data.watermarkText.size() <= 100)) &&
+             (!('watermarkEnabled' in data) || (data.watermarkEnabled is bool)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100));
+    }
+
+    // Saved question set validation
+    function isValidSavedQuestionSet(data) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 128 &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 250 &&
+             data.mapel is string && data.mapel.size() > 0 && data.mapel.size() <= 100 &&
+             data.jenjang is string && data.jenjang.size() > 0 && data.jenjang.size() <= 50 &&
+             data.kelas is string && data.kelas.size() > 0 && data.kelas.size() <= 50 &&
+             data.topik is string && data.topik.size() > 0 && data.topik.size() <= 300 &&
+             data.soalJson is string && data.soalJson.size() > 0 && data.soalJson.size() <= 1000000 &&
+             (!('curriculum' in data) || (data.curriculum is string && data.curriculum.size() <= 50)) &&
+             (!('soalCount' in data) || (data.soalCount is number)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 100)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100));
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().keys().hasAll(['id', 'email']);
+      allow update: if isOwner(userId) && isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().id == existing().id;
+      allow delete: if isOwner(userId) && isValidId(userId);
+    }
+
+    match /savedQuestions/{questionSetId} {
+      allow get: if isSignedIn() && isValidId(questionSetId) && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(questionSetId) &&
+                       isValidSavedQuestionSet(incoming()) &&
+                       incoming().keys().hasAll(['id', 'userId', 'title', 'mapel', 'jenjang', 'kelas', 'topik', 'soalJson']) &&
+                       incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(questionSetId) &&
+                       isValidSavedQuestionSet(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       existing().userId == request.auth.uid;
+      allow delete: if isSignedIn() && isValidId(questionSetId) &&
+                       existing().userId == request.auth.uid;
+    }
+  }
+}

@@ -10,11 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-
+    "firebase": "^13.1.0"
   },
   "devDependencies": {
+    "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@types/node": "^22.14.0",
-    
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

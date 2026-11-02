@@ -1,0 +1,153 @@
+84:        /* Materi Tab Styles */
+85:        .materi-tab {
+91:        .materi-tab:hover {
+95:        .materi-tab.active {
+345:                            <label class="text-xs font-medium text-gray-500 mb-1 block">Topik/Materi <span
+354:                <!-- Materi Referensi (Opsional) -->
+357:                        <i class="fa-solid fa-book-open text-teal-500"></i> Materi Referensi
+366:                    <div class="flex gap-2 mb-3" id="materi-tabs">
+367:                        <button type="button" onclick="selectMateriMethod('none')"
+368:                            class="materi-tab active px-3 py-1.5 rounded-lg text-xs font-medium transition"
+370:                            Tanpa Materi
+372:                        <button type="button" onclick="selectMateriMethod('pdf')"
+373:                            class="materi-tab px-3 py-1.5 rounded-lg text-xs font-medium transition" data-method="pdf">
+376:                        <button type="button" onclick="selectMateriMethod('txt')"
+377:                            class="materi-tab px-3 py-1.5 rounded-lg text-xs font-medium transition" data-method="txt">
+380:                        <button type="button" onclick="selectMateriMethod('manual')"
+381:                            class="materi-tab px-3 py-1.5 rounded-lg text-xs font-medium transition"
+388:                    <div id="materi-pdf-section" class="materi-section hidden">
+390:                            <input type="file" id="materi-pdf-upload" accept=".pdf" class="hidden"
+391:                                onchange="handleMateriPdfUpload(event)">
+392:                            <div id="materi-pdf-preview" class="hidden mb-3">
+396:                                        <p id="materi-pdf-filename" class="text-sm font-semibold text-gray-700"></p>
+397:                                        <p id="materi-pdf-pages" class="text-xs text-gray-500"></p>
+400:                                <button onclick="clearMateriPdf()" class="mt-2 text-xs text-red-500 hover:text-red-700">
+404:                            <div id="materi-pdf-placeholder">
+409:                            <button type="button" onclick="document.getElementById('materi-pdf-upload').click()"
+414:                        <div id="materi-pdf-content-preview" class="mt-3 hidden">
+417:                                <span id="materi-pdf-char-count" class="text-teal-600 font-medium"></span>
+419:                            <div id="materi-pdf-extracted-text"
+426:                    <div id="materi-txt-section" class="materi-section hidden">
+428:                            <input type="file" id="materi-txt-upload" accept=".txt" class="hidden"
+429:                                onchange="handleMateriTxtUpload(event)">
+430:                            <div id="materi-txt-preview" class="hidden mb-3">
+434:                                        <p id="materi-txt-filename" class="text-sm font-semibold text-gray-700"></p>
+435:                                        <p id="materi-txt-lines" class="text-xs text-gray-500"></p>
+438:                                <button onclick="clearMateriTxt()" class="mt-2 text-xs text-red-500 hover:text-red-700">
+442:                            <div id="materi-txt-placeholder">
+447:                            <button type="button" onclick="document.getElementById('materi-txt-upload').click()"
+452:                        <div id="materi-txt-content-preview" class="mt-3 hidden">
+455:                                <span id="materi-txt-char-count" class="text-purple-600 font-medium"></span>
+457:                            <div id="materi-txt-extracted-text"
+464:                    <div id="materi-manual-section" class="materi-section hidden">
+465:                        <textarea id="materi-manual-text" rows="6"
+467:                            placeholder="Ketik atau paste materi pembelajaran di sini...&#10;&#10;Contoh:&#10;Fotosintesis adalah proses pembuatan makanan oleh tumbuhan hijau..."></textarea>
+469:                            <span id="materi-manual-char-count" class="text-xs text-gray-400">0 karakter</span>
+471:                                onclick="document.getElementById('materi-manual-text').value=''; updateManualCharCount()"
+479:                    <div id="materi-instruction-wrapper" class="mt-3 hidden">
+481:                        <input type="text" id="materi-instruction"
+1190:        // MATERI REFERENSI FUNCTIONS (PDF, TXT, Manual)
+1192:        let materiMethod = 'none'; // none, pdf, txt, manual
+1193:        let uploadedMateriPdfContent = null;
+1194:        let uploadedMateriPdfFilename = null;
+1195:        let uploadedMateriTxtContent = null;
+1196:        let uploadedMateriTxtFilename = null;
+1198:        function selectMateriMethod(method) {
+1199:            materiMethod = method;
+1202:            document.querySelectorAll('.materi-tab').forEach(tab => {
+1210:            document.querySelectorAll('.materi-section').forEach(section => {
+1216:                document.getElementById('materi-pdf-section').classList.remove('hidden');
+1217:                document.getElementById('materi-instruction-wrapper').classList.remove('hidden');
+1219:                document.getElementById('materi-txt-section').classList.remove('hidden');
+1220:                document.getElementById('materi-instruction-wrapper').classList.remove('hidden');
+1222:                document.getElementById('materi-manual-section').classList.remove('hidden');
+1223:                document.getElementById('materi-instruction-wrapper').classList.remove('hidden');
+1225:                document.getElementById('materi-instruction-wrapper').classList.add('hidden');
+1235:            const text = document.getElementById('materi-manual-text').value || '';
+1236:            document.getElementById('materi-manual-char-count').textContent = `${text.length.toLocaleString()} karakter`;
+1241:            const manualText = document.getElementById('materi-manual-text');
+1247:        async function handleMateriPdfUpload(event) {
+1261:            const placeholder = document.getElementById('materi-pdf-placeholder');
+1262:            const preview = document.getElementById('materi-pdf-preview');
+1263:            const contentPreview = document.getElementById('materi-pdf-content-preview');
+1283:                uploadedMateriPdfContent = fullText.trim();
+1284:                uploadedMateriPdfFilename = file.name;
+1286:                document.getElementById('materi-pdf-filename').textContent = file.name;
+1287:                document.getElementById('materi-pdf-pages').textContent = `${numPages} halaman`;
+1291:                if (uploadedMateriPdfContent.length > 0) {
+1292:                    document.getElementById('materi-pdf-extracted-text').textContent =
+1293:                        uploadedMateriPdfContent.length > 500
+1294:                            ? uploadedMateriPdfContent.substring(0, 500) + '...'
+1295:                            : uploadedMateriPdfContent;
+1296:                    document.getElementById('materi-pdf-char-count').textContent =
+1297:                        `${uploadedMateriPdfContent.length.toLocaleString()} karakter`;
+1301:                    resetMateriPdfPlaceholder();
+1307:                resetMateriPdfPlaceholder();
+1311:        function resetMateriPdfPlaceholder() {
+1312:            document.getElementById('materi-pdf-placeholder').innerHTML = `
+1317:            document.getElementById('materi-pdf-placeholder').classList.remove('hidden');
+1320:        function clearMateriPdf() {
+1321:            uploadedMateriPdfContent = null;
+1322:            uploadedMateriPdfFilename = null;
+1324:            document.getElementById('materi-pdf-upload').value = '';
+1325:            document.getElementById('materi-pdf-preview').classList.add('hidden');
+1326:            document.getElementById('materi-pdf-content-preview').classList.add('hidden');
+1327:            resetMateriPdfPlaceholder();
+1330:        async function handleMateriTxtUpload(event) {
+1344:            const placeholder = document.getElementById('materi-txt-placeholder');
+1345:            const preview = document.getElementById('materi-txt-preview');
+1346:            const contentPreview = document.getElementById('materi-txt-content-preview');
+1354:                uploadedMateriTxtContent = fullText.trim();
+1355:                uploadedMateriTxtFilename = file.name;
+1357:                document.getElementById('materi-txt-filename').textContent = file.name;
+1358:                document.getElementById('materi-txt-lines').textContent = `${lineCount} baris`;
+1362:                if (uploadedMateriTxtContent.length > 0) {
+1363:                    document.getElementById('materi-txt-extracted-text').textContent =
+1364:                        uploadedMateriTxtContent.length > 500
+1365:                            ? uploadedMateriTxtContent.substring(0, 500) + '...'
+1366:                            : uploadedMateriTxtContent;
+1367:                    document.getElementById('materi-txt-char-count').textContent =
+1368:                        `${uploadedMateriTxtContent.length.toLocaleString()} karakter`;
+1372:                    resetMateriTxtPlaceholder();
+1378:                resetMateriTxtPlaceholder();
+1382:        function resetMateriTxtPlaceholder() {
+1383:            document.getElementById('materi-txt-placeholder').innerHTML = `
+1388:            document.getElementById('materi-txt-placeholder').classList.remove('hidden');
+1391:        function clearMateriTxt() {
+1392:            uploadedMateriTxtContent = null;
+1393:            uploadedMateriTxtFilename = null;
+1395:            const txtUpload = document.getElementById('materi-txt-upload');
+1397:            const txtPreview = document.getElementById('materi-txt-preview');
+1399:            const txtContent = document.getElementById('materi-txt-content-preview');
+1401:            resetMateriTxtPlaceholder();
+1404:        // Get materi referensi state
+1405:        function getMateriReferensi() {
+1406:            const method = materiMethod;
+1409:            let instruction = document.getElementById('materi-instruction')?.value || '';
+1411:            if (method === 'pdf' && uploadedMateriPdfContent) {
+1412:                content = uploadedMateriPdfContent;
+1413:                filename = uploadedMateriPdfFilename;
+1414:            } else if (method === 'txt' && uploadedMateriTxtContent) {
+1415:                content = uploadedMateriTxtContent;
+1416:                filename = uploadedMateriTxtFilename;
+1418:                content = document.getElementById('materi-manual-text')?.value?.trim() || null;
+1431:        // Get visual options state (updated to exclude PDF/TXT since moved to materi section)
+1456:                const enhancedPrompt = `Buat ilustrasi edukasi profesional dengan gaya flat design, warna cerah dan jelas, untuk materi pembelajaran: ${description}. 
+1749:                showError('Mohon isi Topik/Materi terlebih dahulu!');
+2117:            // Get materi referensi from new system
+2118:            const materiRef = getMateriReferensi();
+2120:            if (totalVisual === 0 && !materiRef.hasContent) {
+2124:            // Handle Materi Referensi (PDF, TXT, or Manual)
+2125:            if (materiRef.hasContent) {
+2128:                let materiContent = materiRef.content;
+2129:                if (materiContent.length > maxChars) {
+2130:                    materiContent = materiContent.substring(0, maxChars) + '\n\n[... konten dipotong karena terlalu panjang ...]';
+2133:                const sourceType = materiRef.method === 'pdf' ? 'PDF' :
+2134:                    materiRef.method === 'txt' ? 'TXT' : 'MANUAL INPUT';
+2137:MATERI REFERENSI DARI ${sourceType} (${materiRef.filename}):
+2139:${materiContent}
+2143:- Buat soal HANYA berdasarkan materi di atas
+2144:- Pastikan semua pertanyaan dan jawaban sesuai dengan konten materi
+2145:- Jangan menambahkan informasi yang tidak ada dalam materi
+2146:${materiRef.instruction ? `- Instruksi tambahan: ${materiRef.instruction}` : ''}
+3752:                            <tr><th>Topik/Materi</th><td>${data.topik}</td></tr>

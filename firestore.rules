@@ -41,6 +41,9 @@ service cloud.firestore {
              (!('semester' in data) || (data.semester is string && data.semester.size() <= 50)) &&
              (!('watermarkText' in data) || (data.watermarkText is string && data.watermarkText.size() <= 100)) &&
              (!('watermarkEnabled' in data) || (data.watermarkEnabled is bool)) &&
+             (!('footerEnabled' in data) || (data.footerEnabled is bool)) &&
+             (!('footerIncludeDate' in data) || (data.footerIncludeDate is bool)) &&
+             (!('footerText' in data) || (data.footerText is string && data.footerText.size() <= 500)) &&
              (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 100));
     }
 

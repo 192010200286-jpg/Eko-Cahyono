@@ -299,7 +299,13 @@ function applyProfileToUI(profile: UserProfileData) {
     if (profile.semester) currentOutputSettings.semester = profile.semester;
     if (profile.watermarkText) currentOutputSettings.watermarkText = profile.watermarkText;
     if (profile.watermarkEnabled !== undefined) currentOutputSettings.watermarkEnabled = profile.watermarkEnabled;
+    if (profile.footerEnabled !== undefined) currentOutputSettings.footerEnabled = profile.footerEnabled;
+    if (profile.footerIncludeDate !== undefined) currentOutputSettings.footerIncludeDate = profile.footerIncludeDate;
+    if (profile.footerText !== undefined) currentOutputSettings.footerText = profile.footerText;
     if (window.setOutputSettings) window.setOutputSettings(currentOutputSettings);
+    if (window.generatedData && window.currentFormData && window.renderResults) {
+      window.renderResults(window.currentFormData);
+    }
   }
 }
 
@@ -588,6 +594,9 @@ window.firebaseAuth = {
       const semester = (document.getElementById('setting-semester') as HTMLInputElement)?.value;
       const watermarkText = (document.getElementById('setting-watermark-text') as HTMLInputElement)?.value;
       const watermarkEnabled = (document.getElementById('setting-watermark-enabled') as HTMLInputElement)?.checked;
+      const footerEnabled = (document.getElementById('setting-footer-enabled') as HTMLInputElement)?.checked;
+      const footerIncludeDate = (document.getElementById('setting-footer-date') as HTMLInputElement)?.checked;
+      const footerText = ((document.getElementById('setting-footer-text') as HTMLTextAreaElement)?.value || '').slice(0, 500);
 
       await saveUserProfile({
         namaGuru,
@@ -598,7 +607,10 @@ window.firebaseAuth = {
         tahun,
         semester,
         watermarkText,
-        watermarkEnabled
+        watermarkEnabled,
+        footerEnabled,
+        footerIncludeDate,
+        footerText
       });
       if (window.showSuccess) {
         window.showSuccess('Pengaturan dan profil tersinkron ke cloud!');

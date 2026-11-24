@@ -5,6 +5,9 @@ export interface ExportDocOptions {
   includeKop: boolean;
   includeSignatures: boolean;
   includePetunjuk: boolean;
+  includeFooter?: boolean;
+  footerIncludeDate?: boolean;
+  footerText?: string;
   documentTitle: string;
 }
 
@@ -230,6 +233,20 @@ export function buildAssessmentHtml(
     vertical-align: top;
     width: 50%;
     padding: 6pt;
+  }
+  .doc-footer {
+    margin-top: 20pt;
+    padding-top: 8pt;
+    border-top: 1pt solid #94a3b8;
+    font-size: 9.5pt;
+    color: #475569;
+  }
+  .doc-footer-note {
+    margin-bottom: 3pt;
+  }
+  .doc-footer-date {
+    font-style: italic;
+    color: #64748b;
   }
 </style>
 </head>
@@ -513,6 +530,25 @@ export function buildAssessmentHtml(
   </table>`;
   }
 
+  // 8. CUSTOM FOOTER (Optional)
+  if (options.includeFooter) {
+    const cleanFooterText = (options.footerText || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\n/g, '<br>')
+      .trim();
+    const hasDate = !!options.footerIncludeDate;
+    if (cleanFooterText || hasDate) {
+      html += `
+  <div class="doc-footer">
+    ${cleanFooterText ? `<div class="doc-footer-note"><strong>Catatan:</strong> ${cleanFooterText}</div>` : ''}
+    ${hasDate ? `<div class="doc-footer-date">Dokumen dibuat pada: ${nowStr}</div>` : ''}
+  </div>`;
+    }
+  }
+
   html += `
 </body>
 </html>`;
@@ -621,8 +657,15 @@ export async function triggerGoogleDocsExport(
 
   const defaultTitle = `${asesmen.toUpperCase()} ${mapel} Kelas ${kelas} - ${topik}`;
 
+  const outputSettings = (window as any).getOutputSettings ? (window as any).getOutputSettings() : (window as any).outputSettings;
+  const defaultFooterOptions = {
+    enabled: Boolean(outputSettings?.footerEnabled),
+    includeDate: outputSettings?.footerIncludeDate !== undefined ? Boolean(outputSettings.footerIncludeDate) : true,
+    text: String(outputSettings?.footerText || '')
+  };
+
   // Show Confirmation Modal (MANDATORY per Workspace skill guidelines)
-  showExportConfirmationModal(assessmentMeta, defaultTitle, async (chosenOptions) => {
+  showExportConfirmationModal(assessmentMeta, defaultTitle, defaultFooterOptions, async (chosenOptions) => {
     try {
       showExportLoadingModal('Menghubungkan ke Google Drive & menyiapkan dokumen...');
 
@@ -660,6 +703,7 @@ export async function triggerGoogleDocsExport(
 function showExportConfirmationModal(
   meta: AssessmentMetadata,
   defaultTitle: string,
+  defaultFooter: { enabled: boolean; includeDate: boolean; text: string },
   onConfirm: (options: ExportDocOptions) => void
 ) {
   const existing = document.getElementById('gdocs-confirm-modal');
@@ -759,6 +803,10 @@ function showExportConfirmationModal(
               <input type="checkbox" id="gdocs-opt-ttd" checked class="rounded text-blue-600">
               <span>Sertakan Kolom Tanda Tangan</span>
             </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="gdocs-opt-footer" ${defaultFooter.enabled ? 'checked' : ''} class="rounded text-blue-600">
+              <span>Sertakan Catatan Kaki Khusus</span>
+            </label>
           </div>
         </div>
       </div>
@@ -792,13 +840,17 @@ function showExportConfirmationModal(
     const kopEl = document.getElementById('gdocs-opt-kop') as HTMLInputElement;
     const petunjukEl = document.getElementById('gdocs-opt-petunjuk') as HTMLInputElement;
     const ttdEl = document.getElementById('gdocs-opt-ttd') as HTMLInputElement;
+    const footerEl = document.getElementById('gdocs-opt-footer') as HTMLInputElement;
 
     const options: ExportDocOptions = {
       documentTitle: titleInput?.value.trim() || defaultTitle,
       contentChoice: (choiceEl?.value || 'full') as any,
       includeKop: kopEl ? kopEl.checked : true,
       includePetunjuk: petunjukEl ? petunjukEl.checked : true,
-      includeSignatures: ttdEl ? ttdEl.checked : true
+      includeSignatures: ttdEl ? ttdEl.checked : true,
+      includeFooter: footerEl ? footerEl.checked : defaultFooter.enabled,
+      footerIncludeDate: defaultFooter.includeDate,
+      footerText: defaultFooter.text
     };
 
     closeModal();

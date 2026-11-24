@@ -156,6 +156,9 @@ export interface UserProfileData {
   semester?: string;
   watermarkText?: string;
   watermarkEnabled?: boolean;
+  footerEnabled?: boolean;
+  footerIncludeDate?: boolean;
+  footerText?: string;
   updatedAt?: string;
 }
 
@@ -163,12 +166,17 @@ export async function saveUserProfile(profile: Partial<UserProfileData>): Promis
   if (!auth.currentUser) throw new Error('Harus login terlebih dahulu.');
   const userId = auth.currentUser.uid;
   const path = `users/${userId}`;
+  const sanitizedProfile: Partial<UserProfileData> = {
+    ...profile,
+    ...(profile.footerText !== undefined ? { footerText: String(profile.footerText).slice(0, 500) } : {}),
+    ...(profile.watermarkText !== undefined ? { watermarkText: String(profile.watermarkText).slice(0, 100) } : {}),
+  };
   const data: UserProfileData = {
     id: userId,
     email: auth.currentUser.email || '',
     displayName: auth.currentUser.displayName || '',
     photoURL: auth.currentUser.photoURL || '',
-    ...profile,
+    ...sanitizedProfile,
     updatedAt: new Date().toISOString()
   };
 

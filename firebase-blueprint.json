@@ -18,6 +18,9 @@
         "semester": { "type": "string", "description": "Semester", "maxLength": 50 },
         "watermarkText": { "type": "string", "description": "Custom watermark text", "maxLength": 100 },
         "watermarkEnabled": { "type": "boolean", "description": "Whether watermark is enabled" },
+        "footerEnabled": { "type": "boolean", "description": "Whether custom document footer is enabled" },
+        "footerIncludeDate": { "type": "boolean", "description": "Whether to include creation date in document footer" },
+        "footerText": { "type": "string", "description": "Custom footer note or reminder for students", "maxLength": 500 },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
       },
       "required": ["id", "email"]
